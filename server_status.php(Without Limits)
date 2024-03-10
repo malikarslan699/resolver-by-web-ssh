@@ -1,0 +1,75 @@
+<?php
+// Include SSH connection file
+require_once 'ssh_connect.php';
+
+// Check if SSH connection is established
+if (!isset($connection)) {
+    die('<div style="color: red;">Error: SSH connection failed</div>');
+}
+
+// Execute command to fetch server status
+$command = 'bash status';
+$stream = ssh2_exec($connection, $command);
+
+// Check if command execution is successful
+if (!$stream) {
+    die('<div style="color: red;">Error: Failed to execute command to fetch server status</div>');
+}
+
+// Wait for command to finish executing
+stream_set_blocking($stream, true);
+
+// Read command output stream
+$output = stream_get_contents($stream);
+
+// Close the command stream
+fclose($stream);
+
+// Extract server status from the output
+if (strpos($output, 'Active: active (running)') !== false) {
+    $status = 'Running';
+    $status_color = 'green';
+} else {
+    $status = 'Not Running';
+    $status_color = 'red';
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Server Status</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .container {
+        text-align: center;
+    }
+    h1 {
+        font-size: 1.6em; /* 1.6 times the default size */
+        font-weight: bold;
+        color: black;
+    }
+    .status {
+        font-size: 24px;
+        font-weight: bold;
+        color: <?php echo $status_color; ?>;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Server Status</h1>
+    <div class="status"><?php echo "" . $status; ?></div>
+</div>
+</body>
+</html>
