@@ -1,0 +1,24 @@
+<?php
+// Include the SSH connection file
+require_once 'ssh_connect.php';
+
+// Check if SSH connection is valid
+if (!is_resource($connection)) {
+    die('SSH Connection is not valid');
+}
+
+// Execute command to restart the server
+$command = 'bash restart';
+$stream = ssh2_exec($connection, $command);
+
+// Check if command execution is successful
+if (!$stream) {
+    die('Failed to execute command to restart server');
+}
+
+// Close the command stream
+fclose($stream);
+
+// Output success message
+echo 'Server restarted successfully';
+?>
